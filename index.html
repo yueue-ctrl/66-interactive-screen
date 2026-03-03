@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>66 interactive screen</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- TensorFlow.js and Body Segmentation -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-segmentation@1.0.1/dist/body-segmentation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="canvas-container">
+            <canvas id="mainCanvas"></canvas>
+            <video id="videoElement" playsinline style="display:none;"></video>
+            <img id="sourceImage" style="display:none;">
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <button id="btnCamera">open camera</button>
+                <input type="file" id="fileInput" accept="image/*">
+                <button id="btnUpload" onclick="document.getElementById('fileInput').click()">upload</button>
+            </div>
+
+            <div class="control-group">
+                <label for="sliderSize">square size: <span id="valSize">20</span></label>
+                <input type="range" id="sliderSize" min="2" max="100" value="20">
+            </div>
+
+            <div class="control-group">
+                <label for="sliderThickness">not working now <span id="valThickness">2</span></label>
+                <input type="range" id="sliderThickness" min="1" max="50" value="2">
+            </div>
+
+            <div class="control-group">
+                <label>colors:</label>
+                <textarea id="colorInput" rows="4">#99b94e
+#6d27bf
+#fff707
+#ff5001
+#fe86d4
+#88ff6c
+#ebd5be
+#411d15</textarea>
+                <button id="btnUpdateColors">change color(s)</button>
+            </div>
+            
+            <div class="control-group">
+                <label for="selectShape">change graphics </label>
+                <select id="selectShape">
+                    <option value="square">square</option>
+                    <option value="circle">circle</option>
+                    <option value="triangle">triangle</option>
+                    <option value="symbol-6">6</option>
+                    <option value="symbol--">-</option>
+                    <option value="symbol-+">+</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="btnDownload">download image</button>
+                <button id="btnTogglePoster">refresh</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
