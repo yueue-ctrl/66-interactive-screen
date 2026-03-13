@@ -47,7 +47,7 @@ canvas {
     bottom: 20px;
     right: 20px;
     z-index: 10;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.5);
     padding: 15px;
     border-radius: 12px;
     max-height: 80vh;
@@ -58,62 +58,87 @@ canvas {
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
+.controls.collapsed {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0;
+    overflow: hidden;
+}
+
 .controls-toggle-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
     background: transparent;
     border: none;
-    border-bottom: 1px solid #eee;
     cursor: pointer;
-    padding: 0 0 8px 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hamburger-icon {
+    width: 24px;
+    height: 18px;
+    position: relative;
+}
+
+.hamburger-icon span {
+    display: block;
+    position: absolute;
+    height: 3px;
     width: 100%;
-    text-align: center;
-    margin-bottom: 8px;
+    background: #333;
+    border-radius: 3px;
+    opacity: 1;
+    left: 0;
+    transition: 0.25s ease-in-out;
 }
 
-.controls-toggle-btn:hover {
-    background-color: transparent; /* Override generic button hover */
+.hamburger-icon span:nth-child(1) {
+    top: 0px;
 }
 
-.controls-toggle-btn span {
-    display: inline-block;
-    padding: 8px;
-    border-radius: 50%;
-    transition: border-color 0.2s ease-in-out;
-    line-height: 0; /* Ensures the circle is tight around the icon */
-    border: 2px solid transparent; /* Add transparent border to prevent layout shift */
+.hamburger-icon span:nth-child(2) {
+    top: 7px;
 }
 
-.controls-toggle-btn:hover span {
-    border-color: #6d27bf; /* The purple color for the outline */
+.hamburger-icon span:nth-child(3) {
+    top: 14px;
 }
 
-.arrow {
-  border: solid #555;
-  border-width: 0 2px 2px 0;
-  display: inline-block;
-  padding: 4px;
-  transition: transform 0.3s ease, border-color 0.2s ease-in-out;
+.controls:not(.collapsed) .hamburger-icon span:nth-child(1) {
+    top: 7px;
+    transform: rotate(135deg);
 }
 
-.controls-toggle-btn:hover .arrow {
-    border-color: #6d27bf; /* Match the outline color */
+.controls:not(.collapsed) .hamburger-icon span:nth-child(2) {
+    opacity: 0;
+    left: -24px;
 }
 
-.arrow.down {
-  transform: rotate(45deg);
-}
-
-.arrow.up {
-  transform: rotate(-135deg);
+.controls:not(.collapsed) .hamburger-icon span:nth-child(3) {
+    top: 7px;
+    transform: rotate(-135deg);
 }
 
 #collapsibleControls {
-    transition: max-height 0.4s ease-in-out;
+    transition: max-height 0.4s ease-in-out, opacity 0.3s ease;
     max-height: 1000px; /* A large enough value */
     overflow: hidden;
+    padding-top: 30px; /* Add padding to prevent content from overlapping the button */
+    opacity: 1;
 }
 
 .controls.collapsed #collapsibleControls {
     max-height: 0;
+    opacity: 0;
+    padding-top: 0;
 }
 
 

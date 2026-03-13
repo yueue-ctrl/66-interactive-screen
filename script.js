@@ -114,9 +114,6 @@ btnTogglePoster.addEventListener('click', () => {
 
 btnToggleControls.addEventListener('click', () => {
     controlsContainer.classList.toggle('collapsed');
-    const arrow = btnToggleControls.querySelector('.arrow');
-    arrow.classList.toggle('down');
-    arrow.classList.toggle('up');
 });
 
 selectShape.addEventListener('change', () => {
