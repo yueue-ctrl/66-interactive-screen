@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>66 interactive screen</title>
+    <title>square filter</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><circle cx=%2750%27 cy=%2750%27 r=%2750%27 fill=%27%23ffc0cb%27/></svg>">
     <link rel="stylesheet" href="style.css">
     <!-- TensorFlow.js and Body Segmentation -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
@@ -19,9 +20,14 @@
             <img id="sourceImage" style="display:none;">
         </div>
 
-        <div class="controls">
-            <div class="control-group">
+        <div class="controls" id="controlsContainer">
+            <button id="btnToggleControls" class="controls-toggle-btn">
+                <span><i class="arrow down"></i></span>
+            </button>
+            <div id="collapsibleControls">
+                <div class="control-group">
                 <button id="btnCamera">open camera</button>
+                <button id="btnBlur" disabled>blur</button>
                 <input type="file" id="fileInput" accept="image/*">
                 <button id="btnUpload" onclick="document.getElementById('fileInput').click()">upload</button>
             </div>
@@ -32,28 +38,17 @@
             </div>
 
             <div class="control-group">
-                <label for="sliderThickness">not working now <span id="valThickness">2</span></label>
+                <label for="sliderThickness">dot size <span id="valThickness">2</span></label>
                 <input type="range" id="sliderThickness" min="1" max="50" value="2">
             </div>
 
-            <div class="control-group">
-                <label>colors:</label>
-                <textarea id="colorInput" rows="4">#99b94e
-#6d27bf
-#fff707
-#ff5001
-#fe86d4
-#88ff6c
-#ebd5be
-#411d15</textarea>
-                <button id="btnUpdateColors">change color(s)</button>
-            </div>
+
             
             <div class="control-group">
                 <label for="selectShape">change graphics </label>
                 <select id="selectShape">
+                    <option value="circle" selected>circle</option>
                     <option value="square">square</option>
-                    <option value="circle">circle</option>
                     <option value="triangle">triangle</option>
                     <option value="symbol-6">6</option>
                     <option value="symbol--">-</option>
@@ -65,7 +60,9 @@
                 <button id="btnDownload">download image</button>
                 <button id="btnTogglePoster">refresh</button>
             </div>
+            </div>
         </div>
+        
     </div>
     <script src="script.js"></script>
 </body>

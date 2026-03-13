@@ -5,28 +5,39 @@ const sourceImage = document.getElementById('sourceImage');
 const fileInput = document.getElementById('fileInput');
 
 const btnCamera = document.getElementById('btnCamera');
-const btnUpdateColors = document.getElementById('btnUpdateColors');
+
 const btnDownload = document.getElementById('btnDownload');
-const btnTogglePoster = document.getElementById('btnTogglePoster');
+const btnBlur = document.getElementById('btnBlur');
+const btnToggleControls = document.getElementById('btnToggleControls');
+const controlsContainer = document.getElementById('controlsContainer');
+const collapsibleControls = document.getElementById('collapsibleControls');
 
 const sliderSize = document.getElementById('sliderSize');
 const valSize = document.getElementById('valSize');
 const sliderThickness = document.getElementById('sliderThickness');
 const valThickness = document.getElementById('valThickness');
-const colorInput = document.getElementById('colorInput');
+
 const selectShape = document.getElementById('selectShape');
 
 let isCameraActive = false;
 let animationId = null;
-let currentColors = [];
+let currentColors = ['#99b94e', '#6d27bf', '#fff707', '#ff5001', '#fe86d4', '#88ff6c', '#ebd5be', '#411d15'];
 let segmenter = null;
 let segmentationMask = null;
 let isSegmenterLoading = true;
 let currentShape = selectShape.value; // Initialize currentShape
+let isBlurActive = false;
 
 const rippleColors = ['#ffc0cb', '#ffff00', '#87ceeb', '#9787ffff']; // Pink, Yellow, Sky Blue
 let rippleColorIndex = 0;
 let ripples = [];
+
+// A simple pseudo-random number generator for stable patterns
+function pseudoRandom(seed) {
+    // A simple hash-like function to get a deterministic "random" value
+    let x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+}
 let lastRippleTime = 0;
 const rippleInterval = 1500; // ms
 
@@ -49,24 +60,7 @@ async function initSegmenter() {
 
 initSegmenter();
 
-// Initialize default colors
-function parseColors() {
-    const text = colorInput.value;
-    // Split by newlines, commas, or spaces and filter empty strings
-    currentColors = text.split(/[\n,\s]+/).filter(c => c.match(/^#?[0-9a-fA-F]{3,8}$/));
-    if (currentColors.length === 0) {
-        currentColors = ['#99b94e', '#6d27bf', '#fff707', '#ff5001', '#fe86d4', '#88ff6c', '#ebd5be', '#411d15', '#fe4f02','#8b5d39','#eed4bd','#0e2c1d'];
-    }
-}
 
-// Initial parse
-parseColors();
-
-// Event Listeners
-btnUpdateColors.addEventListener('click', () => {
-    parseColors();
-    drawFrame();
-});
 
 sliderSize.addEventListener('input', (e) => {
     valSize.textContent = e.target.value;
@@ -80,6 +74,16 @@ sliderThickness.addEventListener('input', (e) => {
 
 btnCamera.addEventListener('click', startCamera);
 
+btnBlur.addEventListener('click', () => {
+    if (!isCameraActive) return; // Don't do anything if camera is off
+
+    isBlurActive = !isBlurActive;
+    btnBlur.textContent = isBlurActive ? 'unblur' : 'blur';
+
+    // Redraw the frame immediately to apply/remove the blur
+    drawFrame();
+});
+
 fileInput.addEventListener('change', handleFileUpload);
 
 btnDownload.addEventListener('click', () => {
@@ -92,7 +96,7 @@ btnDownload.addEventListener('click', () => {
 btnTogglePoster.addEventListener('click', () => {
     const sourceExists = isCameraActive || sourceImage.src;
     if (!sourceExists && appState === 'poster') {
-        alert('请先打开摄像头或上传图片，才能进行切换。');
+        alert('Please turn on the camera or upload a picture first before switching.');
         return;
     }
 
@@ -106,6 +110,13 @@ btnTogglePoster.addEventListener('click', () => {
         loop(); // Ensure animation runs
     }
     // Do nothing if in the middle of a transition
+});
+
+btnToggleControls.addEventListener('click', () => {
+    controlsContainer.classList.toggle('collapsed');
+    const arrow = btnToggleControls.querySelector('.arrow');
+    arrow.classList.toggle('down');
+    arrow.classList.toggle('up');
 });
 
 selectShape.addEventListener('change', () => {
@@ -127,9 +138,16 @@ async function startCamera() {
             }
             video.srcObject = null;
             isCameraActive = false;
-            btnCamera.textContent = "打开摄像头";
-            cancelAnimationFrame(animationId);
-            return;
+            btnCamera.textContent = "open camera";
+            btnBlur.disabled = true; // Disable blur button
+            isBlurActive = false; // Reset blur state
+            btnBlur.textContent = 'blur'; // Reset button text
+            
+            // Start the transition out
+            appState = 'transitioning_out';
+            transitionStartTime = performance.now();
+            loop(); // Ensure the loop runs for the transition
+            return; // Exit after stopping the camera
         }
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -137,6 +155,7 @@ async function startCamera() {
         video.play();
         isCameraActive = true;
         btnCamera.textContent = "close camera";
+        btnBlur.disabled = false; // Enable blur button
         
         video.onloadedmetadata = () => {
             canvas.width = video.videoWidth;
@@ -355,12 +374,6 @@ async function drawFrame() {
     if (appState === 'poster') {
         ctx.fillStyle = '#ffc0cb'; // Pink
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        if (canvas.width > 0) {
-            ctx.fillStyle = 'white';
-            ctx.font = '24px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('🤓', canvas.width / 2, canvas.height / 2);
-        }
         return;
     }
 
@@ -369,6 +382,13 @@ async function drawFrame() {
     // 1. Draw Source to Offscreen Canvas to get pixel data
     offscreenCanvas.width = canvas.width;
     offscreenCanvas.height = canvas.height;
+
+    // Apply blur if active
+    if (isBlurActive) {
+        offCtx.filter = 'blur(10px)';
+    } else {
+        offCtx.filter = 'none';
+    }
     
     let sourceReady = false;
     
@@ -387,7 +407,7 @@ async function drawFrame() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.textAlign = 'center';
         ctx.font = '20px Arial';
-        ctx.fillText('请打开摄像头或上传图片', canvas.width/2, canvas.height/2);
+        ctx.fillText('Please turn on the camera or upload a picture', canvas.width/2, canvas.height/2);
         return;
     }
 
@@ -405,6 +425,12 @@ async function drawFrame() {
     }
     
     // 3. Render based on state
+    ctx.save();
+    if (isCameraActive) {
+        ctx.scale(-1, 1);
+        ctx.translate(-canvas.width, 0);
+    }
+
     if (appState.startsWith('transitioning')) {
         const elapsedTime = performance.now() - transitionStartTime;
         let progress = elapsedTime / transitionDuration;
@@ -428,6 +454,8 @@ async function drawFrame() {
         // This case is already handled at the very beginning of drawFrame
         // but leaving this for clarity
     }
+
+    ctx.restore();
 }
 
 function drawAnimatedMosaic(segmentationMask, progress) {
@@ -694,16 +722,11 @@ function drawInteractiveMosaic(segmentationMask) {
     const dotSize = parseInt(sliderThickness.value, 10);
     if (dotSize > 0) {
         ctx.fillStyle = '#ffffff';
-        for (let y = baseGridSize; y < h; y += baseGridSize) {
-            for (let x = baseGridSize; x < w; x += baseGridSize) {
-                // Check the four `baseGridSize` cells that meet at this corner (x, y).
-                // A dot should only be drawn if all four surrounding cells are part of a pure background block.
-                const cell1_isBG = isBlockPureBackground(x - baseGridSize, y - baseGridSize, bgGridSize, w, h, segmentationMask);
-                const cell2_isBG = isBlockPureBackground(x, y - baseGridSize, bgGridSize, w, h, segmentationMask);
-                const cell3_isBG = isBlockPureBackground(x - baseGridSize, y, bgGridSize, w, h, segmentationMask);
-                const cell4_isBG = isBlockPureBackground(x, y, bgGridSize, w, h, segmentationMask);
-
-                if (cell1_isBG && cell2_isBG && cell3_isBG && cell4_isBG) {
+        // Iterate over a grid and draw a dot if the grid point is in the background
+        for (let y = 0; y <= h; y += baseGridSize) {
+            for (let x = 0; x <= w; x += baseGridSize) {
+                // Check if the grid point (x, y) is part of the background
+                if (!isCellPerson(x, y, w, h, segmentationMask)) {
                     ctx.fillRect(x - dotSize / 2, y - dotSize / 2, dotSize, dotSize);
                 }
             }

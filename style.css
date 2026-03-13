@@ -55,8 +55,67 @@ canvas {
     width: 300px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     backdrop-filter: blur(10px);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
+
+.controls-toggle-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    padding: 0 0 8px 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.controls-toggle-btn:hover {
+    background-color: transparent; /* Override generic button hover */
+}
+
+.controls-toggle-btn span {
+    display: inline-block;
+    padding: 8px;
+    border-radius: 50%;
+    transition: border-color 0.2s ease-in-out;
+    line-height: 0; /* Ensures the circle is tight around the icon */
+    border: 2px solid transparent; /* Add transparent border to prevent layout shift */
+}
+
+.controls-toggle-btn:hover span {
+    border-color: #6d27bf; /* The purple color for the outline */
+}
+
+.arrow {
+  border: solid #555;
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 4px;
+  transition: transform 0.3s ease, border-color 0.2s ease-in-out;
+}
+
+.controls-toggle-btn:hover .arrow {
+    border-color: #6d27bf; /* Match the outline color */
+}
+
+.arrow.down {
+  transform: rotate(45deg);
+}
+
+.arrow.up {
+  transform: rotate(-135deg);
+}
+
+#collapsibleControls {
+    transition: max-height 0.4s ease-in-out;
+    max-height: 1000px; /* A large enough value */
+    overflow: hidden;
+}
+
+.controls.collapsed #collapsibleControls {
+    max-height: 0;
+}
+
 
 /* Toggle button for controls (Optional but good UX) */
 .controls:hover {
